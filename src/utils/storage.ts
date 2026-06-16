@@ -85,6 +85,37 @@ export function completeLevel(
   return { data: newData, newUnlock };
 }
 
+/** 记录单题答题结果（实时写入存储） */
+export function recordSingleAnswer(
+  data: GameData,
+  questionId: number,
+  correct: boolean,
+  selected: GarbageType,
+): GameData {
+  const newData = { ...data, mistakes: { ...data.mistakes } };
+  newData.totalQuestions += 1;
+  if (correct) {
+    newData.totalCorrect += 1;
+  } else {
+    const existing = newData.mistakes[questionId];
+    if (existing) {
+      newData.mistakes[questionId] = {
+        ...existing,
+        count: existing.count + 1,
+        lastSelected: selected,
+      };
+    } else {
+      newData.mistakes[questionId] = {
+        questionId,
+        count: 1,
+        lastSelected: selected,
+      };
+    }
+  }
+  saveData(newData);
+  return newData;
+}
+
 /** 记录答题统计 */
 export function recordAnswers(
   data: GameData,

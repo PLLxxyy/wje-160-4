@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GameData, GarbageType, AnswerResult, GARBAGE_TYPES } from '../types';
 import { getQuestionsForLevel, QUESTIONS_PER_LEVEL } from '../data/questions';
-import { recordAnswers, completeLevel } from '../utils/storage';
+import { recordAnswers, recordSingleAnswer, completeLevel } from '../utils/storage';
 import { ProgressBar } from '../components/ProgressBar';
 import { Lives } from '../components/Lives';
 import { Timer } from '../components/Timer';
@@ -32,6 +32,7 @@ const Quiz: React.FC<QuizProps> = ({ level, updateData, onFinish, onBack }) => {
   const startTimeRef = useRef(Date.now());
   const processingRef = useRef(false);
   const answersRef = useRef<AnswerResult[]>([]);
+  const recordedIdsRef = useRef<Set<number>>(new Set());
   const livesRef = useRef(MAX_LIVES);
   const scoreRef = useRef(0);
   const comboRef = useRef(0);
@@ -55,7 +56,7 @@ const Quiz: React.FC<QuizProps> = ({ level, updateData, onFinish, onBack }) => {
       else if (accuracy >= 80) stars = 1;
 
       updateData(prev => {
-        let d = recordAnswers(prev, finalAnswers);
+        let d = prev;
         if (passed) {
           d = completeLevel(d, level, finalScore, accuracy, stars).data;
         }
@@ -87,11 +88,15 @@ const Quiz: React.FC<QuizProps> = ({ level, updateData, onFinish, onBack }) => {
         setScore(s => s + POINTS_PER_CORRECT);
         setCombo(comboRef.current);
         if (comboRef.current >= 3) setComboKey(k => k + 1);
+        updateData(prev => recordSingleAnswer(prev, q.id, true, type));
+        recordedIdsRef.current.add(q.id);
       } else {
         livesRef.current -= 1;
         comboRef.current = 0;
         setLives(l => l - 1);
         setCombo(0);
+        updateData(prev => recordSingleAnswer(prev, q.id, false, type));
+        recordedIdsRef.current.add(q.id);
       }
 
       setTimeout(() => {
@@ -138,6 +143,8 @@ const Quiz: React.FC<QuizProps> = ({ level, updateData, onFinish, onBack }) => {
 
     livesRef.current -= 1;
     setLives(l => l - 1);
+    updateData(prev => recordSingleAnswer(prev, q.id, false, 'other'));
+    recordedIdsRef.current.add(q.id);
 
     setTimeout(() => {
       processingRef.current = false;

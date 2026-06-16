@@ -7,9 +7,10 @@ interface HomeProps {
   gameData: GameData;
   onStartLevel: (level: number) => void;
   onProfile: () => void;
+  onReference: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ gameData, onStartLevel, onProfile }) => {
+const Home: React.FC<HomeProps> = ({ gameData, onStartLevel, onProfile, onReference }) => {
   const [showNameModal, setShowNameModal] = useState(!gameData.playerName);
   const [nameInput, setNameInput] = useState('');
 
@@ -77,6 +78,14 @@ const Home: React.FC<HomeProps> = ({ gameData, onStartLevel, onProfile }) => {
           <div className="stat-label">正确率</div>
         </div>
       </div>
+
+      {/* 功能入口 */}
+      <div className="section-title">📚 学习工具</div>
+      <button className="btn btn-secondary" onClick={onReference} style={{ textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0 }}>
+        <span>📖 分类速查</span>
+        <span style={{ color: '#666', fontSize: 14 }}>200+ 道题随时复习
+        </span>
+      </button>
 
       {/* 关卡列表 */}
       <div className="section-title">🗺️ 关卡地图</div>

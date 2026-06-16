@@ -6,13 +6,15 @@ import Quiz from './pages/Quiz';
 import Result from './pages/Result';
 import Profile from './pages/Profile';
 import Mistakes from './pages/Mistakes';
+import Reference from './pages/Reference';
 
 type Page =
   | { name: 'home' }
   | { name: 'quiz'; level: number }
   | { name: 'result'; level: number; score: number; accuracy: number; stars: number; timeUsed: number }
   | { name: 'profile' }
-  | { name: 'mistakes' };
+  | { name: 'mistakes' }
+  | { name: 'reference' };
 
 const App: React.FC = () => {
   const [gameData, setGameData] = useState<GameData>(() => loadData());
@@ -25,6 +27,7 @@ const App: React.FC = () => {
   const goHome = useCallback(() => setPage({ name: 'home' }), []);
   const goProfile = useCallback(() => setPage({ name: 'profile' }), []);
   const goMistakes = useCallback(() => setPage({ name: 'mistakes' }), []);
+  const goReference = useCallback(() => setPage({ name: 'reference' }), []);
 
   switch (page.name) {
     case 'home':
@@ -33,6 +36,7 @@ const App: React.FC = () => {
           gameData={gameData}
           onStartLevel={(level) => setPage({ name: 'quiz', level })}
           onProfile={goProfile}
+          onReference={goReference}
         />
       );
     case 'quiz':
@@ -77,6 +81,13 @@ const App: React.FC = () => {
           gameData={gameData}
           updateData={updateData}
           onBack={goProfile}
+        />
+      );
+    case 'reference':
+      return (
+        <Reference
+          gameData={gameData}
+          onBack={goHome}
         />
       );
   }
